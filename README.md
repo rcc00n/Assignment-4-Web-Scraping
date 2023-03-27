@@ -7,16 +7,6 @@ sorted with the most talked about Province/Territory at the top. Also print a me
 indicating which province/territory is most in the news. Note that a province/territory
 may be referenced by name and also by a variety of abbreviations (e.g. “B.C.”, “BC”,
 “British Columbia”). Count all of these references.
-Here is a sample of the expected output (WindS is for Windspeaker)
-Province/Territory CBC WindS. Total
-British Columbia 103 89 192
-Alberta 24 37 61
-Yukon 12 8 20
-Northwest Territories 3 5 8
-Nunavut 0 1 1
-⋮ ⋮ ⋮ ⋮
-The province/territory most in the news is: British Columbia
-
 
 b) Which country is the most talked about in CBC World?
 You can get a list of country with this code:
