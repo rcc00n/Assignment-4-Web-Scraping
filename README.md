@@ -7,6 +7,8 @@ sorted with the most talked about Province/Territory at the top. Also print a me
 indicating which province/territory is most in the news. Note that a province/territory
 may be referenced by name and also by a variety of abbreviations (e.g. “B.C.”, “BC”,
 “British Columbia”). Count all of these references.
+![image](https://user-images.githubusercontent.com/123768783/228080554-730ee271-957b-4293-b4d4-5098ed8bae48.png)
+
 
 b) Which country is the most talked about in CBC World?
 You can get a list of country with this code:
@@ -42,5 +44,11 @@ prepositions = ['aboard', 'about', 'above', 'across', 'after',
 'through', 'to', 'toward', 'towards', 'under',
 'underneath', 'unlike', 'until', 'up', 'upon', 'versus',
 'via', 'with', 'within', 'without']
+
+Anything else skewing results, e.g. “news” should not count (CANADA,
+CANADIAN, CANADIANS, should be merged). Make other reasonable decisions
+(e.g., “FIRST NATIONS” should be one word), and make sure you document them,
+but do not go way overboard (e.g., 10-20 cleaning rules is reasonable; 50 is too
+many)
 
 ![image](https://user-images.githubusercontent.com/123768783/228080304-6f8b54bf-7d49-46c9-8317-bfd4cb4a1598.png)
