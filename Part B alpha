@@ -1,39 +1,32 @@
-import requests
-from bs4 import BeautifulSoup
+import urllib.request
 import pycountry
 import re
 
-# Function to clean and standardize country names
+
 def clean_country_name(country):
     if country in ['US', 'U.S.', 'USA', 'U.S.A.', 'United States']:
         return 'United States'
     return country
 
-# Get the list of country names
+
 countries = list(pycountry.countries)
 country_names = [clean_country_name(country.name) for country in countries]
 
-# Fetch the CBC World main page
 url = 'https://www.cbc.ca/news/world'
-response = requests.get(url)
-soup = BeautifulSoup(response.text, 'html.parser')
+response = urllib.request.urlopen(url)
+html_content = response.read().decode('utf-8')
 
-# Extract the text from the main page
-page_text = soup.get_text()
+page_text = re.sub('<[^>]*>', ' ', html_content)
 
-# Count the occurrences of each country name
 country_counts = {}
 for country in country_names:
     count = len(re.findall(r'\b' + re.escape(country) + r'\b', page_text, re.IGNORECASE))
     if count > 0:
         country_counts[country] = count
 
-# Sort the countries by the number of occurrences
 sorted_countries = sorted(country_counts.items(), key=lambda x: x[1], reverse=True)
 
-# Print the most talked about country
 print("Most talked about country:", sorted_countries[0][0])
 
-# Print the sorted list of countries
 for country, count in sorted_countries:
     print(f"{country}: {count}")
