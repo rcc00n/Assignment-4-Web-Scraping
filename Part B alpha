@@ -1,32 +1,94 @@
+"""
+Web scraping, Part B
+Description:
+    This code counts how many times each country was found on a web page and prints the most popular countries.
+Author:
+    Vadim Rudenko
+Date:
+    9 April 2023
+Requirements:
+    - Python 3
+    - urllib.request library
+    - pycountry library
+    - re library
+Inputs:
+    - url = 'https://www.cbc.ca/news/world': page we are scraping
+Outputs:
+    - console output: most talked counties and number of meeting each country
+"""
+
 import urllib.request
 import pycountry
 import re
 
 
-def clean_country_name(country):
+def clean_country_name(country) -> str:
+    """
+    Returns country name and cleans it if it's needed
+    :param country: country that the scraper found on a page
+    :return: country name
+    """
     if country in ['US', 'U.S.', 'USA', 'U.S.A.', 'United States']:
         return 'United States'
     return country
 
 
-countries = list(pycountry.countries)
-country_names = [clean_country_name(country.name) for country in countries]
+def get_list_of_countries():
+    """
+    Creates the list of countries via using pycountry
+    :return: None
+    """
+    countries = list(pycountry.countries)
+    return [clean_country_name(country.name) for country in countries]
 
-url = 'https://www.cbc.ca/news/world'
-response = urllib.request.urlopen(url)
-html_content = response.read().decode('utf-8')
 
-page_text = re.sub('<[^>]*>', ' ', html_content)
+def get_text_of_the_page(url: str) -> str:
+    """
+    Remove tags form html page
+    :param url: url address of the page we are scraping
+    :return: text of the page without tags
+    """
+    response = urllib.request.urlopen(url)
+    html_content = response.read().decode('utf-8')
+    return re.sub('<[^>]*>', ' ', html_content)
 
-country_counts = {}
-for country in country_names:
-    count = len(re.findall(r'\b' + re.escape(country) + r'\b', page_text, re.IGNORECASE))
-    if count > 0:
-        country_counts[country] = count
 
-sorted_countries = sorted(country_counts.items(), key=lambda x: x[1], reverse=True)
+def country_occurrence(page_text: str, country_names: list) -> dict:
+    """
+    This function counts occurance of each country in the text via using regular expressions ignoring the case
+    :param page_text: string with a text of our web page
+    :param country_names: list of countries
+    :return: dictionary with counted countries, where name of countries are keys
+    """
+    country_counts = {}
+    for country in country_names:
+        count = len(re.findall(r'\b' + re.escape(country) + r'\b', page_text, re.IGNORECASE))
+        if count > 0:
+            country_counts[country] = count
+    return country_counts
 
-print("Most talked about country:", sorted_countries[0][0])
 
-for country, count in sorted_countries:
-    print(f"{country}: {count}")
+def sort_country_counts(country_counts: dict):
+    """
+    This function sorts the dictionary of countries
+    :param country_counts: dictionary with counted countries, where name of countries are keys
+    :return: sorted dictionary with counted countries, where name of countries are keys
+    """
+    return sorted(country_counts.items(), key=lambda x: x[1], reverse=True)
+
+
+def main():
+    url = 'https://www.cbc.ca/news/world'
+    page_text = get_text_of_the_page(url)
+    country_names = get_list_of_countries()
+    country_counts = country_occurrence(page_text, country_names)
+    sorted_countries = sort_country_counts(country_counts)
+
+    print("Most talked about country:", sorted_countries[0][0])
+
+    for country, count in sorted_countries:
+        print(f"{country}: {count}")
+
+
+if __name__ == "__main__":
+    main()
