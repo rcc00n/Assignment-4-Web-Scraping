@@ -1,0 +1,91 @@
+"""
+Created by Zlata Mstyslavska
+For AUSCI 135
+At 2 April 2023
+
+Description:
+Script to scrape data from the news websites and find the most popular province or territory mentioned in the news.
+Main features:
+ - count the occurrence of each Province or Territory on the news website
+ - find the Province of Territory with the highest number of occurrence
+ - Province and Territory search is done by name and abbreviation (Alberta, AB, A.B.)
+"""
+from urllib.request import urlopen
+
+
+def provinceScraper(url: str) -> dict[str: int]:
+    """
+    Function to scrape the data from the webpage and get the exact number of occurrence of each Province or Territory
+    on the page. Also sort the dict with the numbers of occurrences of Provinces form the highest occurrence to the lowest.
+
+    :param url: url of the web page to be scraped
+    :return: sorted dict with the key: name of Province/Territory and value: number of occurrence
+    """
+
+    text = str(urlopen(url).read())  # open the url, get the web page content in bytes(with HTML tags) and converts it to string
+
+    # list of all abbreviations of the Provinces and numbers of occurrences on the page
+    provinces = [[["Alberta", "AB", "Alb."], 0],
+                 [["British Columbia", "BC", "B.C."], 0],
+                 [["Manitoba", "MB", "Man."], 0],
+                 [["New Brunswick", "NB", "N.B."], 0],
+                 [["Newfoundland", "NL", "N.L."], 0],
+                 [["Labrador", "NL", "N.L."], 0],
+                 [["Northwest Territories", "NT", "N.W.T."], 0],
+                 [["Nova Scotia", "NS", "N.S."], 0],
+                 [["Nunavut", "NU", "Nvt."], 0],
+                 [["Ontario", "ON", "Ont."], 0],
+                 [["Yukon", "YT", "Y.T."], 0],
+                 [["Saskatchewan", "Sask.", "S.K."], 0],
+                 [["Prince Edward Island", "P.E.", "P.E.I."], 0],
+                 [["Quebec", "Q.C.", "Que."], 0],
+                 ]
+
+    # loop to count the number of occurrences of each Province and Territory on the page(including abbreviations)
+    for province in range(len(provinces)):
+        for name in provinces[province][0]:
+            provinces[province][1] += text.count(name)  # add the number of occurrence of specific Province with its //
+            # abbreviation to the current number
+    provinces = {key[0]: value for key, value in provinces}  # Converting the list of lists of the Provinces and their //
+    # abbreviations and number of occurrences to the dict with key: full name of the Province/Territory and value: number of occurrence
+    return dict(sorted(provinces.items(), key=lambda item: item[1], reverse=True))  # returns the sorted dictionary of provinces
+
+
+def displayInfo(cbcDict: dict[str: int], windspeakerDict: dict[str: int]) -> None:
+    """
+    Displays the table with the name of the province and number of occurrence on specific web page and total occurrence on both pages.
+    :param cbcDict: sorted dict with number of occurrences of provinces and their name from the CBC News webpage
+    :param windspeakerDict: sorted dict with number of occurrences of provinces and their name from the Windspeaker News webpage
+    :return: None
+    """
+    total_mentioned = {key: (value + windspeakerDict[key]) for key, value in cbcDict.items()}  # creates the dict with //
+    # total numbers of occurrence of province names on both webpages
+
+    print("Province/Territory       CBC         WindS.      Total")
+    for key, value in cbcDict.items():
+        print(f"{key:<25} {value:<12} {windspeakerDict[key]:<12} {total_mentioned[key]}")  # displays the table in the console in the columns with specific alignment
+    print(f"The province/territory most in the news is: {list(total_mentioned.keys())[0]}")  # Displays the province with the highest number of occurrences
+
+
+def main():
+    """
+    Main function that contains all other functions and can be named as body of the program.
+    Basically it just puts all other functions in the right order, so the program will be executed correctly
+
+    :return: None
+    """
+
+    cbcNews = provinceScraper("https://www.cbc.ca/news")  # Get the sorted dictionary of occurrence of each province//
+    # territory from the CBC News webpage
+    windSpeaker = provinceScraper("https://windspeaker.com/")  # Get the sorted dictionary of occurrence of each province//
+    # territory from the Windspeaker News webpage
+
+    displayInfo(cbcNews, windSpeaker)  # Displays the table with all information
+
+
+if __name__ == "__main__":
+    """
+    Starting point of the program. The line where the program starts to run because the main function is called.
+    It will run only if the program is launched from this file and not imported.
+    """
+    main()  # Starts the script
