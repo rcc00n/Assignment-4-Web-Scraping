@@ -1,37 +1,34 @@
 import urllib.request
 import pycountry
 import re
-from typing import List, Dict
 
 
-def clean_country_name(country: str) -> str:
-    if country in ['US', 'U.S.', 'USA', 'U.S.A.', 'United States']:
-        return 'United States'
+def clean_country_name(country) -> str:
+    name_variants = {
+        'US': 'United States',
+        'U.S.': 'United States',
+        'USA': 'United States',
+        'U.S.A.': 'United States',
+        'United States': 'United States',
+        'UK': 'United Kingdom',
+        'U.K.': 'United Kingdom',
+        'United Kingdom': 'United Kingdom',
+        'Russia': 'Russia',
+        'Russian Federation': 'Russia',
+        'Ukraine': 'Ukraine',
+        'Republic of Ukraine': 'Ukraine'
+    }
+
+    if country in name_variants:
+        return name_variants[country]
     return country
 
 
-def get_list_of_provinces() -> List[List[str]]:
-    return [
-        ["Alberta", "AB", "Alb."],
-        ["British Columbia", "BC", "B.C."],
-        ["Manitoba", "MB", "Man."],
-        ["New Brunswick", "NB", "N.B."],
-        ["Newfoundland", "NL", "N.L."],
-        ["Labrador", "NL", "N.L."],
-        ["Northwest Territories", "NT", "N.W.T."],
-        ["Nova Scotia", "NS", "N.S."],
-        ["Nunavut", "NU", "Nvt."],
-        ["Ontario", "ON", "Ont."],
-        ["Yukon", "YT", "Y.T."],
-        ["Saskatchewan", "Sask.", "S.K."],
-        ["Prince Edward Island", "P.E.", "P.E.I."],
-        ["Quebec", "Q.C.", "Que."]
-    ]
-
-
-def get_list_of_countries() -> List[str]:
+def get_list_of_countries():
     countries = list(pycountry.countries)
-    return [clean_country_name(country.name) for country in countries]
+    country_names = [clean_country_name(country.name) for country in countries]
+    country_names.extend(['Russian Federation', 'Republic of Ukraine'])
+    return country_names
 
 
 def get_text_of_the_page(url: str) -> str:
@@ -40,45 +37,32 @@ def get_text_of_the_page(url: str) -> str:
     return re.sub('<[^>]*>', ' ', html_content)
 
 
-def region_occurrence(page_text: str, region_names: List[str]) -> Dict[str, int]:
-    region_counts = {}
-    for region in region_names:
-        count = len(re.findall(r'\b' + re.escape(region) + r'\b', page_text, re.IGNORECASE))
+def country_occurrence(page_text: str, country_names: list) -> dict:
+    country_counts = {}
+    for country in country_names:
+        count = len(re.findall(r'\b' + re.escape(country) + r'\b', page_text, re.IGNORECASE))
         if count > 0:
-            region_counts[region] = count
-    return region_counts
+            canonical_name = clean_country_name(country)
+            country_counts[canonical_name] = country_counts.get(canonical_name, 0) + count
+    return country_counts
 
 
-def sort_region_counts(region_counts: Dict[str, int]) -> List:
-    return sorted(region_counts.items(), key=lambda x: x[1], reverse=True)
+def sort_country_counts(country_counts: dict):
+    return sorted(country_counts.items(), key=lambda x: x[1], reverse=True)
 
 
 def main():
     url = 'https://www.cbc.ca/news/world'
     page_text = get_text_of_the_page(url)
-
-    province_names = get_list_of_provinces()
-    province_counts = {}
-    for province in province_names:
-        province_counts[province[0]] = sum(
-            region_occurrence(page_text, province).values()
-        )
-    sorted_provinces = sort_region_counts(province_counts)
-
     country_names = get_list_of_countries()
-    country_counts = region_occurrence(page_text, country_names)
-    sorted_countries = sort_region_counts(country_counts)
+    country_counts = country_occurrence(page_text, country_names)
+    sorted_countries = sort_country_counts(country_counts)
 
-    print("Most talked about province:", sorted_provinces[0][0])
     print("Most talked about country:", sorted_countries[0][0])
 
-    print("\nProvinces:")
-    for province, count in sorted_provinces:
-        print(f"{province}: {count}")
-
-    print("\nCountries:")
     for country, count in sorted_countries:
         print(f"{country}: {count}")
+
 
 if __name__ == "__main__":
     main()
