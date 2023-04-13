@@ -1,0 +1,182 @@
+import urllib.request
+import re
+import ssl
+import certifi
+
+
+def remove_head_prepositions(url: str) -> list:
+    '''
+    :param url: url of the website to scrape
+    :return: stage1_filter - list of words on website without head of the website
+            and prepositions
+    '''
+
+    prepositions = [
+        'aboard', 'about', 'above', 'across', 'after', 'against', 'along', 'amid',
+        'among', 'anti', 'around', 'as', 'at', 'before', 'behind', 'below',
+        'beneath', 'beside', 'besides', 'between', 'beyond', 'but', 'by',
+        'concerning', 'considering', 'despite', 'down', 'during', 'except',
+        'excepting', 'excluding', 'following', 'for', 'from', 'in', 'inside', 'into',
+        'like', 'minus', 'near', 'of', 'off', 'on', 'onto', 'opposite', 'outside',
+        'over', 'past', 'per', 'plus', 'regarding', 'round', 'save', 'since', 'than',
+        'through', 'to', 'toward', 'towards', 'under', 'underneath', 'unlike',
+        'until', 'up', 'upon', 'versus', 'via', 'with', 'within', 'without'
+    ]
+
+    myRequest = urllib.request.Request(url)  # Making my Request object
+    response = urllib.request.urlopen(
+        myRequest, context=ssl.create_default_context(cafile=certifi.where()))
+    html_content = response.read().decode('utf-8')
+
+    page_without_head = re.sub('<[^>]*>', ' ', html_content)
+
+    list_of_page = page_without_head.split()
+
+    stage1_filter = []
+
+    for i in list_of_page:
+        # remove all words greater than 4 characters and less than 20 characters
+        # and not in prepositions to be appended to stage1_filter
+        if (len(i) > 4) and (len(i) < 20) and (i not in prepositions):
+            stage1_filter.append(i)
+
+    return stage1_filter
+
+
+def remove_special_chars(remove_head_prepositions__: list) -> list:
+    '''
+    :param remove_head_prepositions__: list returned by remove_head_prepositions
+    :return: stage2_filter - list of words on website without head of the website,
+                            prepositions and special characters
+    '''
+
+    stage2_filter = [re.sub('[^a-zA-Z0-9]+', '', _)
+                     for _ in remove_head_prepositions__]
+
+    i = 0
+    while i < len(stage2_filter):
+        if 'ian' in stage2_filter[i]:
+            # replacing words ending with 'ian/ians' with 'a'
+            if 'ians' in stage2_filter[i]:
+                j = stage2_filter[i].replace('ians', 'a')
+                stage2_filter.append(j)
+                stage2_filter.pop(i)
+                i -= 1
+            j = stage2_filter[i].replace('ian', 'a')
+            stage2_filter.append(j)
+            stage2_filter.pop(i)
+            i -= 1
+        # replacing plural words with singular words
+        if 's' in stage2_filter[i][-1]:
+            # NOTE: this part is a bit shaky -> might need external libraries
+            k = stage2_filter[i].replace("s", "")
+            stage2_filter.append(k)
+            stage2_filter.pop(i)
+            i -= 1
+        i += 1
+
+    return stage2_filter
+
+
+def combine_words(remove_special_chars__: list) -> list:
+    '''
+    :param remove_special_chars__: list returned by remove_special_chars
+    :return: remove_special_chars__ - list of words on website without head
+                                      of the website, prepositions and special
+                                      characters.
+    '''
+
+    i = 0
+
+    while i < len(remove_special_chars__):
+
+        # combining some common words
+        if remove_special_chars__[i] == 'Prime' and remove_special_chars__[i+1] == 'Minister':
+            j = remove_special_chars__[
+                i+1].replace("Minister", 'Prime-Minister')
+            remove_special_chars__.append(j)
+            remove_special_chars__.pop(i)
+            i -= 1
+
+        elif remove_special_chars__[i] == 'Justin' and remove_special_chars__[i+1] == 'Trudeau':
+            j = remove_special_chars__[
+                i+1].replace("Trudeau", 'Justin-Trudeau')
+            remove_special_chars__.append(j)
+            remove_special_chars__.pop(i)
+            i -= 1
+
+        elif remove_special_chars__[i] == 'British' and remove_special_chars__[i+1] == 'Columbia':
+            j = remove_special_chars__[
+                i+1].replace("Columbia", 'British-Columbia')
+            remove_special_chars__.append(j)
+            remove_special_chars__.pop(i)
+            i -= 1
+
+        elif remove_special_chars__[i] == 'First' and remove_special_chars__[i+1] == 'Nations':
+            j = remove_special_chars__[i+1].replace("Nations", 'First-Nations')
+            remove_special_chars__.append(j)
+            remove_special_chars__.pop(i)
+            i -= 1
+
+        elif (remove_special_chars__[i] == 'machine' and remove_special_chars__[i+1] == 'learning'):
+            j = remove_special_chars__[
+                i+1].replace("learning", 'machine-learning')
+            remove_special_chars__.append(j)
+            remove_special_chars__.pop(i)
+            i -= 1
+
+        elif remove_special_chars__[i] == 'Trudeau':
+            j = remove_special_chars__[i].replace("Trudeau", "Justin-Trudeau")
+            remove_special_chars__.append(j)
+            remove_special_chars__.pop(i)
+            i -= 1
+
+        i += 1
+
+    return remove_special_chars__
+
+
+def get_counts_words(combine_words__: list) -> str:
+    '''
+    :param combine_words__: list returned by combine_words
+    :return: new line character
+    '''
+
+    # counts of each word as lists inside one big list (nested list)
+    counts = [[x, combine_words__.count(x)] for x in set(combine_words__)]
+
+    i = 0
+
+    while i < len(counts):
+        if counts[i][1] < 2:
+            counts.pop(i)
+            i -= 1
+        i += 1
+
+    # sorting the list in descending order of counts
+    sorted_counts = sorted(counts, key=lambda x: x[1], reverse=True)
+
+    print('WORD')
+    print('_____________________________')
+    print()
+    for i in range(10):
+        print(f"{sorted_counts[i][0]:<25} {sorted_counts[i][1]:<25}")
+
+    return '\n'
+
+
+def main(urls: list) -> None:
+    '''
+    :param urls: list of urls (websites) to scrape
+    :return: None
+    driver code
+    '''
+    for url, website_name in urls.items():  # scraping all websites given
+        print(f'The Most Frequent Words On {website_name} are:')
+        print(get_counts_words(combine_words(
+            remove_special_chars(remove_head_prepositions(url)))))
+
+
+urls = {'https://www.cbc.ca/news': 'CBC', 'https://www.cbc.ca/news/world': 'CBC World',
+        'https://windspeaker.com/': 'Windspeaker'}
+main(urls)
