@@ -180,3 +180,5 @@ def main(urls: list) -> None:
 urls = {'https://www.cbc.ca/news': 'CBC', 'https://www.cbc.ca/news/world': 'CBC World',
         'https://windspeaker.com/': 'Windspeaker'}
 main(urls)
+partc.py
+Displaying partc.py.
