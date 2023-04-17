@@ -1,3 +1,8 @@
+"""
+Created by Zlata Mstyslavska (Part A), Vadim Rudenko (Part B and combining code in one file) and Harsh Darji (Part C)
+For AUSCI 135
+16 April 2023
+"""
 from urllib.request import urlopen
 import urllib.request
 import pycountry
@@ -231,7 +236,6 @@ def combine_words(remove_head_prepositions__: list) -> list:
 
         i += 1
 
-    # print(remove_head_prepositions__)
 
     return remove_head_prepositions__
 
@@ -246,7 +250,6 @@ def remove_special_chars(combinie_words__: list) -> list:
     stage2_filter = [re.sub('[^a-zA-Z0-9]+', '', _)
                      for _ in combinie_words__]
 
-    # print(stage2_filter)
     i = 0
     while i < len(stage2_filter):
         if 'ian' in stage2_filter[i]:
@@ -275,7 +278,6 @@ def remove_special_chars(combinie_words__: list) -> list:
             i -= 1
         i += 1
 
-    # print(stage2_filter)
 
     return stage2_filter
 
