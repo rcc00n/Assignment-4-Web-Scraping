@@ -342,4 +342,5 @@ def main(urls: list):
 
 urls = {'https://www.cbc.ca/news': 'CBC', 'https://www.cbc.ca/news/world': 'CBC World',
         'https://windspeaker.com/': 'Windspeaker'}
-main(urls)
+if __name__ == '__main__':
+    main(urls)
