@@ -1,54 +1,13 @@
-# Assignment-4-Web-Scraping
-a) Which Province/Territory is the most talked about in CBC news and
-Windspeaker?:
-Using information on the main page of both news sources, determine which of Canada’s
-provinces or territories is most in the news. Print a table, in order from top to bottom,
-sorted with the most talked about Province/Territory at the top. Also print a message
-indicating which province/territory is most in the news. Note that a province/territory
-may be referenced by name and also by a variety of abbreviations (e.g. “B.C.”, “BC”,
-“British Columbia”). Count all of these references.
-![image](https://user-images.githubusercontent.com/123768783/228080554-730ee271-957b-4293-b4d4-5098ed8bae48.png)
+# News-text analysis coursework
 
+AUSCI 135 group assignment, April 2023: count Canadian province/territory mentions, country mentions, and repeated words in fetched news HTML. Original authorship is preserved: **Zlata Mstyslavska — Part A; Vadim Rudenko — Part B and integration; Harsh Darji — Part C.** The [original assignment brief](docs/assignment.md) remains available.
 
-b) Which country is the most talked about in CBC World?
-You can get a list of country with this code:
-import pycountry
-countries = list(pycountry.countries)
-for country in countries:
-print(country.name)
-Especially for the US, make sure you clean your data and consider the U.S. USA, U.S.A.
-United States, etc. all together.
+## Local checks
 
+Use Python 3.12 and `pip install -r requirements.txt`, then `python -m unittest discover -s tests -v`. Checks use local text and mocked HTTP responses; importing `main` no longer starts a scrape. No live publisher requests are required for tests.
 
-c) Which topics are the most talked about in CBC news, Windspeaker, and CBC
-world:
-Using the information on the main page of both news sources, determine the 10 most
-referenced topics in the news. Do this by building a frequency dictionary of the words
-that occur in the body of the page (i.e. not in the head). Further, clean the words so that:
-1) html commands are not included
-2) words shorter than four characters are not included (“B.C.” should be considered
-4-characters)
-3) words that are common prepositions are not included. Here is a list of common
-prepositions
-prepositions = ['aboard', 'about', 'above', 'across', 'after',
-'against', 'along', 'amid', 'among', 'anti',
-'around', 'as', 'at', 'before', 'behind', 'below',
-'beneath', 'beside', 'besides', 'between',
-'beyond', 'but', 'by', 'concerning', 'considering',
-'despite', 'down', 'during', 'except',
-'excepting', 'excluding', 'following', 'for', 'from',
-'in', 'inside', 'into', 'like', 'minus',
-'near', 'of', 'off', 'on', 'onto', 'opposite',
-'outside', 'over', 'past', 'per', 'plus',
-'regarding', 'round', 'save', 'since', 'than',
-'through', 'to', 'toward', 'towards', 'under',
-'underneath', 'unlike', 'until', 'up', 'upon', 'versus',
-'via', 'with', 'within', 'without']
+`python main.py` is the historical network-enabled entry point. It requests CBC and Windspeaker pages; use it only after checking permission and current site policies. No scheduled scraping or hosted service is included.
 
-Anything else skewing results, e.g. “news” should not count (CANADA,
-CANADIAN, CANADIANS, should be merged). Make other reasonable decisions
-(e.g., “FIRST NATIONS” should be one word), and make sure you document them,
-but do not go way overboard (e.g., 10-20 cleaning rules is reasonable; 50 is too
-many)
+## Scope
 
-![image](https://user-images.githubusercontent.com/123768783/228080304-6f8b54bf-7d49-46c9-8317-bfd4cb4a1598.png)
+`main.py` combines the exercises; the separately named files retain the original component submissions. This is simple regular-expression/text-processing coursework, not a robust news analytics pipeline: HTML structure, abbreviation matching, case handling, alias normalization, and short/empty lists can affect results. Current publisher compatibility and accuracy are not claimed. The preserved Part C includes historical heuristic limitations rather than a modern language-processing model.
